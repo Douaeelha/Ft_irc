@@ -11,18 +11,14 @@
 class Server
 {
 private:
-    int _port;
-    int _server_fd;
-    std::vector<struct pollfd> _poll_fds;
+    int         _port;
+    std::string _password;
+    int         _server_fd; // The main listening socket
 
-    // Private helper methods
     void initSocket();
-    void acceptNewClient();
-    void receiveData(int client_fd);
 
 public:
-    Server(int port);
+    Server(int port, std::string password);
     ~Server();
 
-    void run(); // The main infinite poll() loop
 };

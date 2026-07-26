@@ -1,37 +1,36 @@
 #include "Server.hpp"
+#include <unistd.h> // for close()
+#include <sting>
+#include <sys/socket.h>
+#include <stdexcept> // for runtime_error()
 
-Server::Server(int port) : _port(port), _server_fd(-1)
+// Constructor
+Server::Server(int port, std::string password) : _port(port), _password(password), _server_fd(-1)
 {
     initSocket();
 }
 
+// Destructor
 Server::~Server()
 {
+    // Clean up the main socket if it was successfully opened
     if (_server_fd != -1)
         close(_server_fd);
-    // Loop through and close all client FDs later
 }
 
-void Server::initSocket()
+void    Server::initSocket()
 {
-    // 1. Call socket()
-    // 2. Use setsockopt() to allow port reuse
-    // 3. Use fcntl() to set O_NONBLOCK
-    // 4. Configure sockaddr_in struct
-    // 5. Call bind()
-    // 6. Call listen()
-    // 7. Add _server_fd to _poll_fds
-}
+    _server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-void Server::run()
-{
-    std::cout << "Server starting on port " << _port << "..." << std::endl;
-    
-    while (true)
-    {
-        // 1. Call poll() on _poll_fds vector
-        // 2. Loop through _poll_fds to check for revents (POLLIN, POLLOUT)
-        // 3. If event is on _server_fd -> acceptNewClient()
-        // 4. If event is on client_fd -> receiveData(client_fd)
-    }
+    if (_server_fd < 0)
+        throw std::runtime_error("Error: Failed to create socket");
+
+
+    //multiplexing: one waiter does all , doesnt not wait on a table if there not ready 
+    fcntl(_server_fd, F_SETFL, O_NONBLOCK);
+    /*
+    this line does:
+       F_SETFL: Tells the operating system, "I want to SET the FiLe status flags."
+       O_NONBLOCK: The specific flag that turns off the default blocking behavior.
+    */
 }
