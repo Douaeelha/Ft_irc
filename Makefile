@@ -2,7 +2,7 @@ NAME        = ircserv
 CXX         = c++
 CXXFLAGS    = -Wall -Wextra -Werror -std=c++98 -I $(INC_DIR)
 
-SRC_DIR     = srcs
+SRC_DIR     = src
 OBJ_DIR     = objs
 INC_DIR     = includes
 

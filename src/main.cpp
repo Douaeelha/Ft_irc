@@ -1,11 +1,7 @@
 #include <iostream>
-// #include "Client.hpp"
-// #include "Channel.hpp"
-#include <vector>
 #include <cctype>
 #include <cstdlib>
 #include <string>
-// #include "Server.hpp"
 
 
 bool isStrictlyNumeric(const std::string &str) {
@@ -18,9 +14,10 @@ bool isStrictlyNumeric(const std::string &str) {
 
 int main (int ac, char **av)
 {
-    if(ac != 3)
+     //Validate argument count
+    if (argc != 3)
     {
-        std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl;
         return 1;
     }
     //input edge cases 
@@ -41,6 +38,16 @@ int main (int ac, char **av)
         std::cerr << "Port number must be between 1024 and 49151" << std::endl;
         return 1;
     }
+   try
+    {
+        Server irc(port, password);
+        irc.run();
+    } 
+    catch (const std::exception& e)
+    {
+        std::cerr << "Server Error: " << e.what() << std::endl;
+        return 1;
+    }
     return 0;
-
 }
+
