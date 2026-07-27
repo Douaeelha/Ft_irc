@@ -1,6 +1,4 @@
 #include "Server.hpp"
-#include <iostream>
-#include <cstdlib> // For std::atoi
 
 int main(int argc, char **argv)
 {
@@ -26,7 +24,7 @@ int main(int argc, char **argv)
     try
     {
         Server irc(port, password);
-        // irc.run();
+        irc.run();
     } 
     catch (const std::exception& e)
     {
