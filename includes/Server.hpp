@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
+#include "Client.hpp"
 #include <sys/socket.h> // ! REVIEW FOR MAC
 #include <netinet/in.h>
 #include <fcntl.h>
@@ -14,6 +16,7 @@
 class Server
 {
 private:
+    std::map<int, Client> _clients; // Map of client file descriptors to Client objects
     int         _port;
     std::string _password;
     int         _server_fd; // The main listening socket
