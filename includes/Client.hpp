@@ -1,19 +1,52 @@
 #pragma once 
-#include <string>
+#include <string> 
+
 
 // represent a single user 
+
 class Client{
     private:
-        int fd;
-        std::string nickname;
-        std::string username;
-        std::string buffer_in;
-        std::string buffer_out;
-        bool is_registered;// have they completed the registration process
+        int _fd;// needed to know which socket to send response to
+        std::string _nickname;// to be set by the nick command
+        std::string _username; // to be set by the user command
+        std::string _realname; // to be set by the user command
+        //security flags 
+        bool _hadPassword; // to be set by the pass command to check if user is to be accepted 
+        bool _hasNickname; // to be set by the nick command to check if user is to be accepted
+        bool _hasUsername; // to be set by the user command to check if user is
+        //registration flags
+        bool _is_registered;// have they completed the registration process
+        // PASS NICK USER 
+        std::string _buffer_in; // to store incoming messages from the client
+        std::string _buffer_out; // to store outgoing messages to the client
+    public:
+        Client(int fd);
+        ~Client();
+        Client(const Client &other);
+        Client &operator=(const Client &other);
+        // getters 
+        int getFd() const;
+        std::string getNickname() const;
+        std::string getUsername() const;
+        std::string getRealname() const;
+         bool getHadPassword() const;
+        bool getHasNickname() const;
+        bool getHasUsername() const;
+        bool getIsRegistered() const;
+        // setters
+        void setNickname(const std::string &nickname);
+        void setUsername(const std::string &username);
+        void setRealname(const std::string &realname);
+        void setHadPassword(bool hadPassword);
+        void setHasNickname(bool hasNickname);
+        void setHasUsername(bool hasUsername);
+        void setIsRegistered(bool isRegistered);
+      // buffer management
+        void appendToBufferIn(const std::string &message);
+        void appendToBufferOut(const std::string &message);
+        std::string getBufferIn() const;
+        std::string getBufferOut() const;
+       
+        void clearBufferIn();
+        void clearBufferOut();
 };
-
-// methods to implement:
-// send message to client
-// receive message from client
-// set nickname
-//set username
