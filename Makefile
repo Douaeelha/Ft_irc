@@ -8,10 +8,8 @@ INC_DIR     = includes
 
 SRCS        = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/network/Server.cpp \
-#               $(SRC_DIR)/parser/Parser.cpp \
-#               $(SRC_DIR)/commands/Join.cpp \
-#               $(SRC_DIR)/commands/Privmsg.cpp \
-#               $(SRC_DIR)/commands/Mode.cpp
+              $(SRC_DIR)/parser/Parser.cpp \
+              $(SRC_DIR)/commands/Client.cpp \
 
 OBJS        = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
