@@ -10,7 +10,7 @@ SRCS        = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/network/Server.cpp \
               $(SRC_DIR)/parser/Parser.cpp \
               $(SRC_DIR)/commands/Client.cpp \
-
+			  $(SRC_DIR)/commands/Channel.cpp \
 OBJS        = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
 all: $(NAME)
