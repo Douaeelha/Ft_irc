@@ -2,17 +2,15 @@ NAME        = ircserv
 CXX         = c++
 CXXFLAGS    = -Wall -Wextra -Werror -std=c++98 -I $(INC_DIR)
 
-SRC_DIR     = srcs
+SRC_DIR     = src
 OBJ_DIR     = objs
 INC_DIR     = includes
 
 SRCS        = $(SRC_DIR)/main.cpp \
               $(SRC_DIR)/network/Server.cpp \
               $(SRC_DIR)/parser/Parser.cpp \
-              $(SRC_DIR)/commands/Join.cpp \
-              $(SRC_DIR)/commands/Privmsg.cpp \
-              $(SRC_DIR)/commands/Mode.cpp
-
+              $(SRC_DIR)/commands/Client.cpp \
+			  $(SRC_DIR)/commands/Channel.cpp \
 OBJS        = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 
 all: $(NAME)
