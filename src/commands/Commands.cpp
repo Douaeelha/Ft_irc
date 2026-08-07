@@ -12,8 +12,8 @@ static bool isSpecialNickChar(char c) {
 }
 
 static std::string prefixFor(const Client &c) {
-    // no real hostname available yet (Client doesn't store one, and Server
-    // hasn't been wired up to getpeername() it) -- "localhost" is a
+    //NOTE: no real hostname available yet (Client doesn't store one, and Server
+    // hasn't been wired up to get it . -- "localhost" is a
     // placeholder. Fine for now; flag it if a real client complains.
     return c.getNickname() + "!" + c.getUsername() + "@localhost";
 }
@@ -90,7 +90,10 @@ void Commands::handlePass(Client &client, const std::vector<std::string> &args,
     }
     client.setHadPassword(true);
 }
-
+// here something need to be added 
+//channel map to args so i can check in what channels 
+// current clinet is active in and broadcats the nick change 
+// also needed for quit disconnect cleanup 
 void Commands::handleNick(Client &client, const std::vector<std::string> &args,
                            const std::map<int, Client*> &clients, const std::string &serverName) {
     std::string target = client.getNickname().empty() ? "*" : client.getNickname();
@@ -583,6 +586,9 @@ void Commands::handleMode(Client &client, const std::vector<std::string> &args,
                                                       target + " " + unknown, "is unknown mode char to me"));
         }
     }
+    // here if user uses MODE +l with garbage param , in a refrence irc server 
+    //the param gets consumed but the user doesn't see anything in the output, so i did the same here i just consumed 
+    // it silently 
 
     if (!appliedModes.empty()) {
         std::string modeMsg = ":" + prefixFor(client) + " MODE " + chanName + " " +
