@@ -11,6 +11,7 @@ class Client{
         std::string _username; // to be set by the user command
         std::string _realname; // to be set by the user command
         //security flags 
+        std::string _hostname; // to be set by the user command
         bool _hadPassword; // to be set by the pass command to check if user is to be accepted 
         bool _hasNickname; // to be set by the nick command to check if user is to be accepted
         bool _hasUsername; // to be set by the user command to check if user is
@@ -33,6 +34,7 @@ class Client{
         bool getHasNickname() const;
         bool getHasUsername() const;
         bool getIsRegistered() const;
+        std::string getHostname() const;
         // setters
         void setNickname(const std::string &nickname);
         void setUsername(const std::string &username);
@@ -41,6 +43,7 @@ class Client{
         void setHasNickname(bool hasNickname);
         void setHasUsername(bool hasUsername);
         void setIsRegistered(bool isRegistered);
+        void setHostname(const std::string &hostname);
       // buffer management
         void appendToBufferIn(const std::string &message);
         void appendToBufferOut(const std::string &message);
