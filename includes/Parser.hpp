@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #pragma once
 
 #include<string>
@@ -20,3 +21,14 @@ class Parser{
 
         Command parse(const std::string &line) const;
 };
+=======
+#pragma once 
+#include <vector>
+#include <string>
+class ParsedMessage {
+public:
+    std::string command;
+    std::vector<std::string> params;
+    std::string trailing;
+};  
+>>>>>>> main
