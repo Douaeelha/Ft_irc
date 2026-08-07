@@ -71,6 +71,10 @@ bool Client::getIsRegistered() const {
     return this->_is_registered;
 }
 
+std::string Client::getHostname() const {
+    return this->_hostname;
+}
+
 void Client::setNickname(const std::string &nickname) {
     this->_nickname = nickname;
 }
@@ -93,6 +97,10 @@ void Client::setHasNickname(bool hasNickname) {
 
 void Client::setHasUsername(bool hasUsername) {
     this->_hasUsername = hasUsername;
+}
+
+void Client::setHostname(const std::string &hostname) {
+    this->_hostname = hostname;
 }
 
 void Client::setIsRegistered(bool isRegistered) {
