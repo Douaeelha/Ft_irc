@@ -9,9 +9,27 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 // Destructor
 Server::~Server()
 {
-    // Clean up the main socket if it was successfully opened
-    if (_server_fd != -1)
-        close(_server_fd);
+    // Loop through all monitored sockets and close them
+    for (size_t i = 0; i < _poll_fds.size(); i++)
+    {
+        if (_poll_fds[i].fd != -1)
+        {
+            close(_poll_fds[i].fd);
+        }
+    }
+    
+    std::cout << "All sockets closed. Memory cleaned up." << std::endl;
+}
+
+// Initialize the static variable
+bool Server::_isRunning = true;
+
+// The function the OS will call when you press Ctrl+C
+void Server::signalHandler(int signum)
+{
+    (void)signum; // Cast to void to silence unused variable warnings
+    std::cout << "\nSignal received. Shutting down server gracefully..." << std::endl;
+    Server::_isRunning = false;
 }
 
 void    Server::initSocket()
@@ -50,35 +68,81 @@ void    Server::initSocket()
 
 void Server::run()
 {
+    signal(SIGINT, Server::signalHandler);
+    signal(SIGQUIT, Server::signalHandler);
+
     std::cout << "Server listening on port " << _port << std::endl;
 
-    while (true)
+    while (Server::_isRunning)
     {
-        // 1. The switchboard operator waits for a light to flash
-        // The -1 timeout means "wait forever until something happens"
-        int poll_count = poll(_poll_fds.data(), _poll_fds.size(), -1); //poll() : It is a system call that asks the kernel: "I have an array of sockets. Put my program to sleep. Wake me up the exact millisecond any of them are ready to be read or written to."
+        int poll_count = poll(_poll_fds.data(), _poll_fds.size(), -1); 
 
         if (poll_count < 0)
+        {
+            // If Ctrl+C was pressed, the flag is now false. Break the loop cleanly!
+            if (!Server::_isRunning)
+                break;
+                
             throw std::runtime_error("Error: poll() failed");
-
-        // 2. A light flashed! Loop through the monitors to find which one
+        }
+        
         for (size_t i = 0; i < _poll_fds.size(); i++)
         {
-            // If revents is 0, this specific socket did nothing. Skip it.
             if (_poll_fds[i].revents == 0)
                 continue;
 
-            // Check if the event is data ready to read (POLLIN)
-            if (_poll_fds[i].revents & POLLIN) // POLLIN : It means there is data waiting to be read
+            // flag to track if the client was deleted during POLLIN
+            bool client_disconnected = false;
+
+            if (_poll_fds[i].revents & POLLIN) 
             {
-                if (_poll_fds[i].fd == _server_fd) // It's the main door! Someone is trying to connect
+                if (_poll_fds[i].fd == _server_fd) 
                 {
                     acceptNewClient();
                 }
-    
-                else // It's an existing client! They sent a message
+                else 
                 {
-                    receiveData(_poll_fds[i].fd);
+                    int current_fd = _poll_fds[i].fd;
+                    receiveData(current_fd);
+                    
+                    // If the client is no longer in Douae's map, it was deleted!
+                    if (_clients.find(current_fd) == _clients.end())
+                    {
+                        client_disconnected = true;
+                    }
+                }
+            }
+            
+            // Safety escape hatch
+            if (client_disconnected)
+            {
+                i--; // Step back so we don't skip the next socket in the vector
+                continue; // Skip the POLLOUT check below
+            }
+
+            // Check if the socket is ready to be written to (POLLOUT)
+            if (_poll_fds[i].fd != _server_fd && (_poll_fds[i].revents & POLLOUT))
+            {
+                int current_fd = _poll_fds[i].fd;
+                
+                std::map<int, Client>::iterator it = _clients.find(current_fd);
+                if (it != _clients.end())
+                {
+                    std::string out_buffer = it->second.getBufferOut();
+                    
+                    if (!out_buffer.empty())
+                    {
+                        int bytes_sent = send(current_fd, out_buffer.c_str(), out_buffer.length(), 0);
+                        
+                        if (bytes_sent > 0)
+                        {
+                            it->second.clearBufferOut(); 
+                        }
+                        else
+                        {
+                            std::cerr << "Error: Failed to send data to client " << current_fd << std::endl;
+                        }
+                    }
                 }
             }
         }
@@ -103,12 +167,22 @@ void Server::acceptNewClient()
     // Pack it into a pollfd struct and add it to the watch list
     struct pollfd client_poll_fd;
     client_poll_fd.fd = client_fd;
-    client_poll_fd.events = POLLIN; // Watch this client for incoming messages
+    client_poll_fd.events = POLLIN | POLLOUT; // Watch this client for incoming messages
     client_poll_fd.revents = 0;
 
     _poll_fds.push_back(client_poll_fd);
 
-    std::cout << "New client connected! FD: " << client_fd << std::endl;
+    // Instantiate Douae's Client and store it in the map:
+    _clients.insert(std::make_pair(client_fd, Client(client_fd)));
+
+   // new: Grab the IP and give it to Douae's Client
+    std::string client_ip = inet_ntoa(client_addr.sin_addr);
+    std::map<int, Client>::iterator it = _clients.find(client_fd);
+    if (it != _clients.end())
+    {
+        it->second.setHostname(client_ip);
+    }    
+    std::cout << "New client connected! FD: " << client_fd << " IP: " << client_ip << std::endl;
 }
 
 void Server::receiveData(int client_fd)
@@ -121,38 +195,29 @@ void Server::receiveData(int client_fd)
     // Scenario 1: We successfully read data
     if (bytes_received > 0)
     {
-        buffer[bytes_received] = '\0'; // Null-terminate the string so C++ knows where it ends
-        std::cout << "Client " << client_fd << " sent: " << buffer;
-
-        //Send a reply ---
-        std::string reply = "Server says: I got your message!\r\n";
-    
-        send(client_fd, reply.c_str(), reply.length(), 0); // send() takes the fd, the raw string (c_str), the length, and 0 for flags
-    }
-
-    // Scenario 2: The client disconnected
-    else if (bytes_received == 0)
-    {
-        std::cout << "Client " << client_fd << " disconnected." << std::endl;
+        buffer[bytes_received] = '\0'; // Null-terminate the string
         
-        // Clean up this client
-        close(client_fd);
-        for (std::vector<struct pollfd>::iterator it = _poll_fds.begin(); it != _poll_fds.end(); ++it)
+        std::map<int, Client>::iterator it = _clients.find(client_fd);
+        if (it != _clients.end())
         {
-            if (it->fd == client_fd)
-            {
-                _poll_fds.erase(it);
-                break;
-            }
+            // Push data to the client's buffer
+            it->second.appendToBufferIn(buffer); 
+            std::cout << "Client " << client_fd << " buffer: " << it->second.getBufferIn() << std::endl;
         }
     }
-
-    // Scenario 3: An error occurred
+    // Scenario 2 & 3: The client disconnected OR an error occurred
     else
     {
-        std::cerr << "Error: recv() failed on client " << client_fd << std::endl;
+        // Print the correct message
+        if (bytes_received == 0)
+            std::cout << "Client " << client_fd << " disconnected." << std::endl;
+        else
+            std::cerr << "Error: recv() failed on client " << client_fd << std::endl;
         
-        // Clean up this client
+        // Clean up Douae's map 
+        _clients.erase(client_fd);
+        
+        // Clean up the server socket and vector
         close(client_fd);
         for (std::vector<struct pollfd>::iterator it = _poll_fds.begin(); it != _poll_fds.end(); ++it)
         {
