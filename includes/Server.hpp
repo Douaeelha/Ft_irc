@@ -12,6 +12,8 @@
 #include <string>
 #include <stdexcept> // for runtime_error()
 #include <cstdlib> // For std::atoi
+#include <signal.h> //signals
+#include <arpa/inet.h>
 
 class Server
 {
@@ -27,6 +29,10 @@ private:
 
     void acceptNewClient();
     void receiveData(int client_fd);
+
+    // ignal handling
+    static bool _isRunning;
+    static void signalHandler(int signum);
 
 public:
     Server(int port, std::string password);
