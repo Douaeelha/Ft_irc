@@ -32,6 +32,13 @@ namespace Commands {
     // if the reference client sends this Reda should split on ',' and call this once per pair.
     void handleJoin(Client &client, const std::vector<std::string> &args,
                      std::map<std::string, Channel> &channels, const std::string &serverName);
+
+    // JOIN dispatcher helper that splits comma-separated channels and keys,
+    // then calls handleJoin once per channel/key pair.
+    void handleJoinCommand(Client &client,
+                           const std::vector<std::string> &args,
+                           std::map<std::string, Channel> &channels,
+                           const std::string &serverName);
  
     // PRIVMSG <target>[,<target>...] :<text>
     void handlePrivmsg(Client &client, const std::vector<std::string> &args,
