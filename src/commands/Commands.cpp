@@ -12,10 +12,7 @@ static bool isSpecialNickChar(char c) {
 }
 
 static std::string prefixFor(const Client &c) {
-    //NOTE: no real hostname available yet (Client doesn't store one, and Server
-    // hasn't been wired up to get it . -- "localhost" is a
-    // placeholder. Fine for now; flag it if a real client complains.
-    return c.getNickname() + "!" + c.getUsername() + "@localhost";
+    return c.getNickname() + "!" + c.getUsername() + c.getHostname();
 }
 
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
