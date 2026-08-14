@@ -16,7 +16,7 @@ static bool isSpecialNickChar(char c) {
 }
 
 static std::string prefixFor(const Client &c) {
-    return c.getNickname() + "!" + "@" + c.getUsername() + c.getHostname();
+    return c.getNickname() + "!" + c.getUsername() + "@" + c.getHostname();
 }
 
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
