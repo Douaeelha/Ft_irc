@@ -171,7 +171,7 @@ void Commands::checkRegistrationComplete(Client &client, const std::string &serv
 
 // ---------------- channel commands ----------------
 
-void Commands::handleJoin(Client &client, const std::vector<std::string> &args,
+void Commands::handleJoinCommand(Client &client, const std::vector<std::string> &args,
                            std::map<std::string, Channel> &channels, const std::string &serverName) {
     std::string target = client.getNickname();
 
