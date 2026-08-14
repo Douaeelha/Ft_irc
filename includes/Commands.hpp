@@ -13,7 +13,8 @@ namespace Commands {
  
     // NICK <nickname>
     void handleNick(Client &client, const std::vector<std::string> &args,
-                     const std::map<int, Client*> &clients, const std::string &serverName);
+                     const std::map<int, Client*> &clients, std::map<std::string, Channel> &channels,
+                     const std::string &serverName);
  
     // USER <username> <hostname> <servername> :<realname>
     void handleUser(Client &client, const std::vector<std::string> &args,
