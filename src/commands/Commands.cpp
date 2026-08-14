@@ -6,13 +6,17 @@
 
 /*---------helper functions-------------*/
 
+static std::string buildPrefix(const std::string &nick, const std::string &user, const std::string &host, const Client &c) {
+    return nick + "!" + user + "@" + (host.empty() ? c.getHostname() : host);
+}
+
 static bool isSpecialNickChar(char c) {
     return c == '[' || c == ']' || c == '\\' || c == '`' ||
            c == '_' || c == '^' || c == '{' || c == '|' || c == '}';
 }
 
 static std::string prefixFor(const Client &c) {
-    return c.getNickname() + "!" + c.getUsername() + "@" + c.getHostname();
+    return c.getNickname() + "!" + "@" + c.getUsername() + c.getHostname();
 }
 
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
@@ -87,28 +91,26 @@ void Commands::handlePass(Client &client, const std::vector<std::string> &args,
     }
     client.setHadPassword(true);
 }
-// here something need to be added 
-//channel map to args so i can check in what channels 
-// current clinet is active in and broadcats the nick change 
-// also needed for quit disconnect cleanup 
-void Commands::handleNick(Client &client, const std::vector<std::string> &args,
-                           const std::map<int, Client*> &clients, const std::string &serverName) {
-    std::string target = client.getNickname().empty() ? "*" : client.getNickname();
 
+void Commands::handleNick(Client &client, const std::vector<std::string> &args,
+                           const std::map<int, Client*> &clients,
+                           std::map<std::string, Channel> &channels, const std::string &serverName) {
+    std::string target = client.getNickname().empty() ? "*" : client.getNickname();
+ 
     if (args.empty() || args[0].empty()) {
         client.appendToBufferOut(Replies::build(serverName, Replies::ERR_NONICKNAMEGIVEN,
                                                   target, "No nickname given"));
         return;
     }
-
+ 
     const std::string &newNick = args[0];
-
+ 
     if (!isValidNickname(newNick)) {
         client.appendToBufferOut(Replies::build(serverName, Replies::ERR_ERRONEUSNICKNAME,
                                                   target + " " + newNick, "Erroneous nickname"));
         return;
     }
-
+ 
     std::map<int, Client*>::const_iterator it = clients.begin();
     for (; it != clients.end(); ++it) {
         if (it->second->getFd() != client.getFd() && it->second->getNickname() == newNick) {
@@ -117,12 +119,20 @@ void Commands::handleNick(Client &client, const std::vector<std::string> &args,
             return;
         }
     }
-
+ 
+    std::string oldNick = client.getNickname();
     client.setNickname(newNick);
     client.setHasNickname(true);
-    // NB: if the client was already registered, changing nickname should also
-    // broadcast a "NICK" message to every channel they're in -- that needs the
-    // channel list, which lives in Server, so it's not handled here.
+ 
+    // notify every channel this client is currently sitting in (no-op if
+    // they're not in any yet, e.g. during initial registration)
+    std::string nickMsg = ":" + buildPrefix(oldNick, client.getUsername(), client.getHostname(), client) +
+                           " NICK :" + newNick + "\r\n";
+    std::map<std::string, Channel>::iterator cit = channels.begin();
+    for (; cit != channels.end(); ++cit) {
+        if (cit->second.isMember(client.getFd()))
+            cit->second.broadcast(nickMsg); // sent to the renaming client too, RFC-style confirmation
+    }
 }
 
 void Commands::handleUser(Client &client, const std::vector<std::string> &args,
