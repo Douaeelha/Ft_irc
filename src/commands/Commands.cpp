@@ -42,6 +42,49 @@ static bool parseSizeT(const std::string &s, size_t &out) {
     return !iss.fail();
 }
 
+static std::vector<std::string> splitCommaSeparated(const std::string &str) {
+    std::vector<std::string> result;
+    std::string current;
+
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+        if (*it == ',') {
+            result.push_back(current);
+            current.clear();
+        } else {
+            current += *it;
+        }
+    }
+
+    result.push_back(current);
+    return result;
+}
+
+void Commands::handleJoinCommand(Client &client,
+                                 const std::vector<std::string> &args,
+                                 std::map<std::string, Channel> &channels,
+                                 const std::string &serverName) {
+    if (args.empty()) {
+        handleJoin(client, args, channels, serverName);
+        return;
+    }
+
+    std::vector<std::string> channelNames = splitCommaSeparated(args[0]);
+    std::vector<std::string> keys;
+
+    if (args.size() > 1)
+        keys = splitCommaSeparated(args[1]);
+
+    for (size_t i = 0; i < channelNames.size(); ++i) {
+        std::vector<std::string> joinArgs;
+        joinArgs.push_back(channelNames[i]);
+
+        if (i < keys.size())
+            joinArgs.push_back(keys[i]);
+
+        handleJoin(client, joinArgs, channels, serverName);
+    }
+}
+
 /*---------Registration---------*/
 
 // RFC1459-ish nickname validation (letter/special first char, then
