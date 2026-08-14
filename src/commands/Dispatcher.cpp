@@ -41,7 +41,7 @@ void Dispatcher::dispatch(const Parser::Command &cmd, Client &client,
     } else if (name == "USER") {
         Commands::handleUser(client, cmd.params, serverName);
     } else if (name == "JOIN") {
-        Commands::handleJoin(client, cmd.params, channels, serverName);
+        Commands::handleJoinCommand(client, cmd.params, channels, serverName);// this is the function reda implemnted gotta merge to fix error 
     } else if (name == "PRIVMSG") {
         Commands::handlePrivmsg(client, cmd.params, clients, channels, serverName);
     } else if (name == "KICK") {
