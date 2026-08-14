@@ -1,9 +1,7 @@
 #include "Server.hpp"
-#include "Dispatcher.hpp"
 
 // Constructor
-Server::Server(int port, std::string password)
-    : _port(port), _password(password), _server_name("irc.local"), _server_fd(-1)
+Server::Server(int port, std::string password) : _port(port), _password(password), _server_fd(-1)
 {
     initSocket();
 }
@@ -204,33 +202,7 @@ void Server::receiveData(int client_fd)
         {
             // Push data to the client's buffer
             it->second.appendToBufferIn(buffer); 
-
-            // Parse and dispatch complete IRC lines (ending with '\n').
-            std::string input = it->second.getBufferIn();
-            size_t line_end = input.find('\n');
-
-            while (line_end != std::string::npos)
-            {
-                std::string raw_line = input.substr(0, line_end + 1);
-                input.erase(0, line_end + 1);
-
-                Parser::Command cmd = _parser.parse(raw_line);
-                if (!cmd.name.empty())
-                {
-                    std::map<int, Client*> client_ptrs;
-                    std::map<int, Client>::iterator cit = _clients.begin();
-                    for (; cit != _clients.end(); ++cit)
-                        client_ptrs[cit->first] = &cit->second;
-
-                    Dispatcher::dispatch(cmd, it->second, client_ptrs, _channels, _password, _server_name);
-                }
-
-                line_end = input.find('\n');
-            }
-
-            // Keep an incomplete tail for the next recv() call.
-            it->second.clearBufferIn();
-            it->second.appendToBufferIn(input);
+            std::cout << "Client " << client_fd << " buffer: " << it->second.getBufferIn() << std::endl;
         }
     }
     // Scenario 2 & 3: The client disconnected OR an error occurred

@@ -14,18 +14,13 @@
 #include <cstdlib> // For std::atoi
 #include <signal.h> //signals
 #include <arpa/inet.h>
-#include "Parser.hpp"
-#include "Channel.hpp"
 
 class Server
 {
 private:
     std::map<int, Client> _clients; // Map of client file descriptors to Client objects
-    std::map<std::string, Channel> _channels;
-    Parser      _parser;
     int         _port;
     std::string _password;
-    std::string _server_name;
     int         _server_fd; // The main listening socket
 
     std::vector<struct pollfd> _poll_fds;
