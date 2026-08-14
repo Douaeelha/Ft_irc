@@ -16,6 +16,7 @@ namespace Replies {
     const std::string ERR_NOSUCHCHANNEL = "403";// <channel> :No such channel
     const std::string ERR_CANNOTSENDTOCHAN = "404";// <channel> :Cannot send to channel
     const std::string ERR_NORECIPIENT = "411";// <command> :No recipient given (for PRIVMSG/NOTICE)
+    const std::string ERR_UNKNOWNCOMMAND = "421";// <command> :Unknown command
     const std::string ERR_NOTEXTTOSEND = "412";// :No text to
     const std::string ERR_NONICKNAMEGIVEN = "431";// No nickname given
     const std::string ERR_ERRONEUSNICKNAME = "432"; // invalid nickname(client used spaces or control characters)
@@ -23,6 +24,7 @@ namespace Replies {
     const std::string ERR_USERNOTINCHANNEL = "441";// <nick> <channel> :They aren't on that channel
     const std::string ERR_NOTONCHANNEL     = "442";// <channel> :You're not on that channel
     const std::string ERR_USERONCHANNEL    = "443";// <user> <channel> :is already on channel
+    const std::string ERR_NOTREGISTERED = "451";// :You have not registered
     const std::string ERR_NEEDMOREPARAMS = "461";// Not enough parameters
     const std::string ERR_ALREADYREGISTRED = "462";// You may not reregister
     const std::string ERR_PASSWDMISMATCH = "464";// Password mismatch

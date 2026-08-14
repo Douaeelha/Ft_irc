@@ -58,5 +58,7 @@ namespace Commands {
                      std::map<int, Client*> &clients,
                      std::map<std::string, Channel> &channels,
                      const std::string &serverName);
+    void handleQuit(Client &client, const std::vector<std::string> &args,
+                    std::map<std::string, Channel> &channels, const std::string &serverName);
 }
 

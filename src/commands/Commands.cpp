@@ -12,10 +12,7 @@ static bool isSpecialNickChar(char c) {
 }
 
 static std::string prefixFor(const Client &c) {
-    //NOTE: no real hostname available yet (Client doesn't store one, and Server
-    // hasn't been wired up to get it . -- "localhost" is a
-    // placeholder. Fine for now; flag it if a real client complains.
-    return c.getNickname() + "!" + c.getUsername() + "@localhost";
+    return c.getNickname() + "!" + c.getUsername() + "@" + c.getHostname();
 }
 
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
@@ -596,4 +593,23 @@ void Commands::handleMode(Client &client, const std::vector<std::string> &args,
         channel.broadcast(modeMsg);
     }
 }
+
+void Commands::handleQuit(Client &client, const std::vector<std::string> &args,
+                           std::map<std::string, Channel> &channels, const std::string &serverName) {
+    (void)serverName; // no reply is sent to the quitting client itself here;
+                       // Server closes their fd right after this call anyway
+
+    std::string reason = args.empty() ? "Client Quit" : args[0];
+    std::string quitMsg = ":" + prefixFor(client) + " QUIT :" + reason + "\r\n";
+
+    std::map<std::string, Channel>::iterator it = channels.begin();
+    for (; it != channels.end(); ++it) {
+        if (it->second.isMember(client.getFd())) {
+            it->second.broadcast(quitMsg, client.getFd()); // everyone but the client leaving
+            it->second.removeMember(client.getFd());
+        }
+    }
+}
+
+
 
