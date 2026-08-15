@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Channel.hpp"
+#include "Parser.hpp"
+#include "Dispatcher.hpp"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -17,27 +20,29 @@
 
 class Server
 {
-private:
-    std::map<int, Client> _clients; // Map of client file descriptors to Client objects
-    int         _port;
-    std::string _password;
-    int         _server_fd; // The main listening socket
+    private:
+        std::map<std::string, Channel> _channels;
+        
+        std::map<int, Client> _clients; // Map of client file descriptors to Client objects
+        int         _port;
+        std::string _password;
+        int         _server_fd; // The main listening socket
 
-    std::vector<struct pollfd> _poll_fds;
+        std::vector<struct pollfd> _poll_fds;
 
-    void initSocket();
+        void initSocket();
 
-    void acceptNewClient();
-    void receiveData(int client_fd);
+        void acceptNewClient();
+        void receiveData(int client_fd);
 
-    // ignal handling
-    static bool _isRunning;
-    static void signalHandler(int signum);
+        // ignal handling
+        static bool _isRunning;
+        static void signalHandler(int signum);
 
-public:
-    Server(int port, std::string password);
-    ~Server();
+    public:
+        Server(int port, std::string password);
+        ~Server();
 
-    void run();
+        void run();
 
 };

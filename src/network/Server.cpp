@@ -188,36 +188,87 @@ void Server::acceptNewClient()
 void Server::receiveData(int client_fd)
 {
     char buffer[1024];
-    
-    // Call recv() to pull data from the socket into the bucket
     int bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
-    // Scenario 1: We successfully read data
     if (bytes_received > 0)
     {
-        buffer[bytes_received] = '\0'; // Null-terminate the string
+        buffer[bytes_received] = '\0'; 
         
         std::map<int, Client>::iterator it = _clients.find(client_fd);
         if (it != _clients.end())
         {
-            // Push data to the client's buffer
             it->second.appendToBufferIn(buffer); 
-            std::cout << "Client " << client_fd << " buffer: " << it->second.getBufferIn() << std::endl;
+            
+            std::map<int, Client*> client_ptrs;
+            for (std::map<int, Client>::iterator ptr_it = _clients.begin(); ptr_it != _clients.end(); ++ptr_it) {
+                client_ptrs[ptr_it->first] = &(ptr_it->second);
+            }
+
+            std::string data = it->second.getBufferIn();
+            size_t pos;
+            Parser parser;
+            
+            bool should_disconnect = false; 
+
+            while ((pos = data.find('\n')) != std::string::npos)
+            {
+                std::string line = data.substr(0, pos);
+                data = data.substr(pos + 1); 
+
+                Parser::Command cmd = parser.parse(line);
+                
+                if (!cmd.name.empty())
+                {
+                    Dispatcher::dispatch(cmd, it->second, client_ptrs, _channels, _password, "ircserv");
+                    
+                    if (cmd.name == "QUIT" || cmd.name == "quit") {
+                        should_disconnect = true;
+                        break; 
+                    }
+                }
+            }
+
+            if (should_disconnect)
+            {
+                for (std::map<std::string, Channel>::iterator chan_it = _channels.begin(); chan_it != _channels.end(); ++chan_it)
+                {
+                    if (chan_it->second.isMember(client_fd))
+                        chan_it->second.removeMember(client_fd);
+                }
+                
+                _clients.erase(client_fd);
+                close(client_fd);
+                for (std::vector<struct pollfd>::iterator p_it = _poll_fds.begin(); p_it != _poll_fds.end(); ++p_it)
+                {
+                    if (p_it->fd == client_fd)
+                    {
+                        _poll_fds.erase(p_it);
+                        break;
+                    }
+                }
+                std::cout << "Client " << client_fd << " disconnected via QUIT." << std::endl;
+                return; 
+            }
+
+            it->second.clearBufferIn();
+            it->second.appendToBufferIn(data);
         }
     }
-    // Scenario 2 & 3: The client disconnected OR an error occurred
+    // Scenario 2 & 3: The client disconnected unexpectedly
     else
     {
-        // Print the correct message
         if (bytes_received == 0)
-            std::cout << "Client " << client_fd << " disconnected." << std::endl;
+            std::cout << "Client " << client_fd << " disconnected unexpectedly." << std::endl;
         else
             std::cerr << "Error: recv() failed on client " << client_fd << std::endl;
         
-        // Clean up Douae's map 
-        _clients.erase(client_fd);
+        for (std::map<std::string, Channel>::iterator chan_it = _channels.begin(); chan_it != _channels.end(); ++chan_it)
+        {
+            if (chan_it->second.isMember(client_fd))
+                chan_it->second.removeMember(client_fd);
+        }
         
-        // Clean up the server socket and vector
+        _clients.erase(client_fd);
         close(client_fd);
         for (std::vector<struct pollfd>::iterator it = _poll_fds.begin(); it != _poll_fds.end(); ++it)
         {
