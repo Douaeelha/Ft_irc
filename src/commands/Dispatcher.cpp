@@ -25,7 +25,7 @@ void Dispatcher::dispatch(const Parser::Command &cmd, Client &client,
     // succeed.
     bool isPreRegistrationCommand =
         (name == "PASS" || name == "NICK" || name == "USER" ||
-         name == "QUIT" || name == "PING");
+         name == "QUIT" || name == "PING" || name == "CAP");
 
     if (!client.getIsRegistered() && !isPreRegistrationCommand) {
         std::string target = client.getNickname().empty() ? "*" : client.getNickname();
@@ -36,6 +36,8 @@ void Dispatcher::dispatch(const Parser::Command &cmd, Client &client,
 
     if (name == "PASS") {
         Commands::handlePass(client, cmd.params, serverPassword, serverName);
+    } else if (name == "CAP") {
+        return;// ignore silently 
     } else if (name == "NICK") {
         Commands::handleNick(client, cmd.params, clients ,channels, serverName);
     } else if (name == "USER") {
