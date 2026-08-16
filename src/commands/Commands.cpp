@@ -16,7 +16,7 @@ static bool isSpecialNickChar(char c) {
 }
 
 static std::string prefixFor(const Client &c) {
-    return c.getNickname() + "!" + "@" + c.getUsername() + c.getHostname();
+    return c.getNickname() + "!" + c.getUsername()+ "@" + c.getHostname();
 }
 
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
@@ -147,7 +147,10 @@ void Commands::handleNick(Client &client, const std::vector<std::string> &args,
     }
  
     const std::string &newNick = args[0];
- 
+
+    if(newNick == client.getNickname()) {
+        return; 
+    }
     if (!isValidNickname(newNick)) {
         client.appendToBufferOut(Replies::build(serverName, Replies::ERR_ERRONEUSNICKNAME,
                                                   target + " " + newNick, "Erroneous nickname"));
