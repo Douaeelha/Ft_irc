@@ -220,8 +220,12 @@ void Server::receiveData(int client_fd)
                 if (!cmd.name.empty())
                 {
                     Dispatcher::dispatch(cmd, it->second, client_ptrs, _channels, _password, "ircserv");
-                    
-                    if (cmd.name == "QUIT" || cmd.name == "quit") {
+                    // this added by douae 
+                    std::string upper_cmd = cmd.name;
+                    for (size_t k = 0; k < upper_cmd.size(); ++k) {
+                        upper_cmd[k] = std::toupper(upper_cmd[k]);
+                    }
+                    if (upper_cmd == "QUIT") {
                         should_disconnect = true;
                         break; 
                     }
