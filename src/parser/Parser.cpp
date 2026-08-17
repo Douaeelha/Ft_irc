@@ -29,9 +29,6 @@ Parser::Command Parser::parse(const std::string &line) const
             std::string rest;
             std::getline(iss, rest);
 
-            if (!rest.empty() && rest[0] == ' ')
-                rest.erase(0, 1);
-
             cmd.params.push_back(token.substr(1) + rest);
             break;
         }
@@ -76,9 +73,9 @@ std::string Parser::trimTrailingCRLF(const std::string &line) const
 
 // int main()
 // {
-//     testParse("PASS secret\r\n");
+//     // testParse("PASS secret\r\n");
 //     // testParse("NICK test\r\n");
-//     // testParse("PRIVMSG #chan :hello world\r\n");
+//     testParse("PRIVMSG #chan :hello world\r\n");
 //     // testParse("JOIN #room\r\n");
 //     return 0;
 // }
