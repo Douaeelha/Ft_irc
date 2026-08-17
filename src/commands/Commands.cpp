@@ -243,9 +243,10 @@ void Commands::handleJoin(Client &client, const std::vector<std::string> &args,
     }
     Channel &channel = it->second;
 
-    if (channel.isMember(client.getFd()))
+    if (channel.isMember(client.getFd())){
+        client.appendToBufferOut(":" + serverName + "NOTICE" + target + " :You are already a memeber of " + chanName + "\r\n");
         return; // already in, nothing to do
-
+    }
     if (!isNewChannel) {
         if (channel.isInviteOnly() && !channel.isInvited(client.getFd())) {
             client.appendToBufferOut(Replies::build(serverName, Replies::ERR_INVITEONLYCHAN,
