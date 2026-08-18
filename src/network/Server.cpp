@@ -137,6 +137,7 @@ void Server::run()
                         if (bytes_sent > 0)
                         {
                             it->second.clearBufferOut(); 
+                            _poll_fds[i].events &= ~POLLOUT;
                         }
                         else
                         {
@@ -167,7 +168,8 @@ void Server::acceptNewClient()
     // Pack it into a pollfd struct and add it to the watch list
     struct pollfd client_poll_fd;
     client_poll_fd.fd = client_fd;
-    client_poll_fd.events = POLLIN | POLLOUT; // Watch this client for incoming messages
+    client_poll_fd.events = POLLIN; // Watch this client for incoming messages
+
     client_poll_fd.revents = 0;
 
     _poll_fds.push_back(client_poll_fd);
@@ -220,12 +222,27 @@ void Server::receiveData(int client_fd)
                 if (!cmd.name.empty())
                 {
                     Dispatcher::dispatch(cmd, it->second, client_ptrs, _channels, _password, "ircserv");
+
+                    if (!it->second.getBufferOut().empty())
+                    {
+                        for (size_t i = 0; i < _poll_fds.size(); i++)
+                        {
+                            if (_poll_fds[i].fd == client_fd)
+                            {
+                                _poll_fds[i].events |= POLLOUT; // Turn the bit ON
+                                break;
+                            }
+                        }
+                    }
+
                     // this added by douae 
                     std::string upper_cmd = cmd.name;
-                    for (size_t k = 0; k < upper_cmd.size(); ++k) {
+                    for (size_t k = 0; k < upper_cmd.size(); ++k)
+                    {
                         upper_cmd[k] = std::toupper(upper_cmd[k]);
                     }
-                    if (upper_cmd == "QUIT") {
+                    if (upper_cmd == "QUIT") 
+                    {
                         should_disconnect = true;
                         break; 
                     }
