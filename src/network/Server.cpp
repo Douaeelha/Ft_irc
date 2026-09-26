@@ -75,6 +75,17 @@ void Server::run()
 
     while (Server::_isRunning)
     {
+        for (size_t i = 1; i < _poll_fds.size(); i++)
+        {
+            int current_fd = _poll_fds[i].fd;
+            std::map<int, Client>::iterator it = _clients.find(current_fd);
+            
+            if (it != _clients.end() && !it->second.getBufferOut().empty())
+            {
+                _poll_fds[i].events |= POLLOUT;
+            }
+        }
+        
         int poll_count = poll(_poll_fds.data(), _poll_fds.size(), -1); 
 
         if (poll_count < 0)
