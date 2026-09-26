@@ -6,7 +6,7 @@ Channel::Channel(const std::string &name) {
     this->_key = "";
 
     this->_inviteOnly = false;
-    this->_topicRestricted = false;
+    this->_topicRestricted = true;
     this->_hasKey = false;
     this->_hasUserLimit = false;
     this->_userLimit = 0;
