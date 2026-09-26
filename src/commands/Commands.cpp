@@ -212,6 +212,12 @@ void Commands::checkRegistrationComplete(Client &client, const std::string &serv
         std::string welcome = "Welcome to the Internet Relay Network " + client.getNickname();
         client.appendToBufferOut(Replies::build(serverName, Replies::RPL_WELCOME,
                                                   client.getNickname(), welcome));
+        client.appendToBufferOut(Replies::build(serverName, Replies::RPL_YOURHOST,
+                                                    client.getNickname(), welcome));
+        client.appendToBufferOut(Replies::build(serverName, Replies::RPL_CREATED,
+                                                    client.getNickname(), welcome));
+        client.appendToBufferOut(Replies::build(serverName, Replies::RPL_MYINFO,
+                                                    client.getNickname(), welcome));
     }
 }
 

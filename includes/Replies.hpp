@@ -4,6 +4,9 @@
 namespace Replies {
     //replies 
     const std::string RPL_WELCOME = "001"; // Welcome message
+    const std::string RPL_YOURHOST = "002"; 
+    const std::string RPL_CREATED = "003";
+    const std::string RPL_MYINFO = "004"; 
     const std::string RPL_CHANNELMODEIS = "324";// <channel> <mode> <mode params>// sent by server to report channel settings 
     const std::string RPL_NOTOPIC = "331";// <channel> :No topic is set 
     const std::string RPL_TOPIC = "332";// <channel> :<topic> // sent by server to report the topic of a channel
