@@ -621,13 +621,16 @@ void Commands::handleMode(Client &client, const std::vector<std::string> &args,
                     continue;
                 }
                 size_t limit;
-                if (parseSizeT(args[paramIndex], limit)) {
-                    channel.setUserLimit(limit);
-                    appliedModes += sign;
-                    appliedModes += c;
-                    appliedParams += " " + args[paramIndex];
+                if (!parseSizeT(args[paramIndex], limit) || limit == 0) {
+                   client.appendToBufferOut(Replies::build(serverName, Replies::ERR_NEEDMOREPARAMS,
+                                                            target + "MODE", "Invalid limit" ));
+                    paramIndex++;
+                    continue;
                 }
-                // invalid numeric value: silently ignored, param still consumed
+                channel.setUserLimit(limit);
+                appliedModes += sign;
+                appliedModes += c;
+                appliedParams += " " + args[paramIndex];
                 paramIndex++;
             } else {
                 channel.removeUserLimit();
