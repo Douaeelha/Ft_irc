@@ -35,6 +35,7 @@ namespace Replies {
     const std::string ERR_UNKNOWNMODE      = "472";// <char> :is unknown mode char to me for <channel>
     const std::string ERR_INVITEONLYCHAN   = "473";// <channel> :Cannot join channel (+i)
     const std::string ERR_BADCHANNELKEY    = "475";// <channel> :Bad channel key
+    const std::string ERR_BADCHANMASK      = "476";// <channel> :Bad Channel Mask
     const std::string ERR_CHANOPRIVSNEEDED = "482";// <channel> :You're not channel operator
 
     

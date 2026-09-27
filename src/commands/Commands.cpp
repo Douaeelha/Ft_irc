@@ -249,8 +249,8 @@ void Commands::handleJoin(Client &client, const std::vector<std::string> &args,
     std::string key = args.size() > 1 ? args[1] : "";
 
     if (chanName.empty() || chanName[0] != '#') {
-        client.appendToBufferOut(Replies::build(serverName, Replies::ERR_NOSUCHCHANNEL,
-                                                  target + " " + chanName, "No such channel"));
+        client.appendToBufferOut(Replies::build(serverName, Replies::ERR_BADCHANMASK,
+                                                  target + " " + chanName, "Bad Channel Mask"));
         return;
     }
 
