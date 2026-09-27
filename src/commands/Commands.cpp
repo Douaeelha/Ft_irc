@@ -19,10 +19,18 @@ static std::string prefixFor(const Client &c) {
     return c.getNickname() + "!" + c.getUsername()+ "@" + c.getHostname();
 }
 
+static std::string toLower(const std::string &s){
+    std::string result = s;
+    for (size_t i = 0; i < result.size(); ++i)
+        result[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(result[i])));
+    return result;
+}
+
 static Client *findClientByNick(const std::map<int, Client*> &clients, const std::string &nick) {
+    std::string lowerNick = toLower(nick);
     std::map<int, Client*>::const_iterator it = clients.begin();
     for (; it != clients.end(); ++it) {
-        if (it->second->getNickname() == nick)
+        if (toLower(it->second->getNickname()) == lowerNick)
             return it->second;
     }
     return NULL;
@@ -156,10 +164,11 @@ void Commands::handleNick(Client &client, const std::vector<std::string> &args,
                                                   target + " " + newNick, "Erroneous nickname"));
         return;
     }
- 
+    
+    std::string lowerNewNick = toLower(newNick);
     std::map<int, Client*>::const_iterator it = clients.begin();
     for (; it != clients.end(); ++it) {
-        if (it->second->getFd() != client.getFd() && it->second->getNickname() == newNick) {
+        if (it->second->getFd() != client.getFd() && toLower(it->second->getNickname()) == lowerNewNick) {
             client.appendToBufferOut(Replies::build(serverName, Replies::ERR_NICKNAMEINUSE,
                                                       target + " " + newNick, "Nickname is already in use"));
             return;
