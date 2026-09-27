@@ -183,10 +183,14 @@ void Commands::handleNick(Client &client, const std::vector<std::string> &args,
     // they're not in any yet, e.g. during initial registration)
     std::string nickMsg = ":" + buildPrefix(oldNick, client.getUsername(), client.getHostname(), client) +
                            " NICK :" + newNick + "\r\n";
+    if(client.getIsRegistered()) {
+        client.appendToBufferOut(nickMsg); // echo to self even if not in any channels
+        //added if check to only send the message if the client is registered
+    }
     std::map<std::string, Channel>::iterator cit = channels.begin();
     for (; cit != channels.end(); ++cit) {
         if (cit->second.isMember(client.getFd()))
-            cit->second.broadcast(nickMsg); // sent to the renaming client too, RFC-style confirmation
+            cit->second.broadcast(nickMsg, client.getFd()); 
     }
 }
 
