@@ -426,6 +426,9 @@ void Commands::handleKick(Client &client, const std::vector<std::string> &args,
                            " :" + comment + "\r\n";
     channel.broadcast(kickMsg);
     channel.removeMember(targetFd);
+    if (channel.getMemberCount() == 0) {
+        channels.erase(chanName);
+    }
 }
 
 void Commands::handleInvite(Client &client, const std::vector<std::string> &args,
@@ -683,6 +686,10 @@ void Commands::handleQuit(Client &client, const std::vector<std::string> &args,
         if (it->second.isMember(client.getFd())) {
             it->second.broadcast(quitMsg, client.getFd()); // everyone but the client leaving
             it->second.removeMember(client.getFd());
+            if(it->second.getMemberCount() == 0) {
+                channels.erase(it++);
+                continue;
+            }
         }
     }
 }
