@@ -403,6 +403,12 @@ void Commands::handleKick(Client &client, const std::vector<std::string> &args,
                                                   target + " " + chanName, "You're not channel operator"));
         return;
     }
+    Client *globalTarget = findClientByNick(channel.getMembers(), targetNick);
+    if(!globalTarget) {
+        client.appendToBufferOut(Replies::build(serverName, Replies::ERR_NOSUCHNICK,
+                                                    target + " " + targetNick, "No such nick"));
+        return;
+    }
 
     int targetFd = -1;
     const std::map<int, Client*> &members = channel.getMembers();
