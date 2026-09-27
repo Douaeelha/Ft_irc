@@ -25,7 +25,7 @@ void Dispatcher::dispatch(const Parser::Command &cmd, Client &client,
     // succeed.
     bool isPreRegistrationCommand =
         (name == "PASS" || name == "NICK" || name == "USER" ||
-         name == "QUIT" || name == "PING" || name == "CAP");
+         name == "QUIT" || name == "PING" || name == "CAP" );
 
     if (!client.getIsRegistered() && !isPreRegistrationCommand) {
         std::string target = client.getNickname().empty() ? "*" : client.getNickname();
@@ -37,7 +37,13 @@ void Dispatcher::dispatch(const Parser::Command &cmd, Client &client,
     if (name == "PASS") {
         Commands::handlePass(client, cmd.params, serverPassword, serverName);
     } else if (name == "CAP") {
-        return;// ignore silently 
+        if(!cmd.params.empty() && cmd.params[0] == "LS") {
+            client.appendToBufferOut(":ircserv CAP * LS :\r\n");
+        }
+        return;
+    } else if (name == "HELP"){
+        client.appendToBufferOut(":" + serverName + " NOTICE " +  client.getNickname() + " :Available commands: PASS, NICK, USER, JOIN, PRIVMSG, KICK, INVITE, TOPIC, MODE, QUIT\r\n");
+
     } else if (name == "NICK") {
         Commands::handleNick(client, cmd.params, clients ,channels, serverName);
     } else if (name == "USER") {
