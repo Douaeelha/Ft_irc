@@ -6,7 +6,6 @@
 #include "includes/Client.hpp"
 #include "includes/Channel.hpp"
 
-
 bool isStrictlyNumeric(const std::string &str) {
     int i = 0;
     while(str[i] != '\0') {
@@ -17,7 +16,6 @@ bool isStrictlyNumeric(const std::string &str) {
     }
     return true;
 }
-
 
 int main (int ac, char **av)
 {
