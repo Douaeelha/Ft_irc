@@ -1,8 +1,7 @@
 #pragma once 
 #include <string> 
 
-
-// represent a single user 
+// represent a single use
 
 class Client{
     private:
