@@ -3,9 +3,9 @@
 # ft_irc
 
 ## Description
-This project is an Internet Relay Chat (IRC) server written in C++98[cite: 1]. The goal of the project is to implement a functional, non-blocking IRC server capable of handling multiple client connections simultaneously using a single `poll()` (or equivalent) multiplexing loop without hanging or forking[cite: 1]. 
+This project is an Internet Relay Chat (IRC) server written in C++98. The goal of the project is to implement a functional, non-blocking IRC server capable of handling multiple client connections simultaneously using a single `poll()` (or equivalent) multiplexing loop without hanging or forking. 
 
-The server allows clients to connect via TCP/IP, authenticate with a password, register a nickname/username, join channels, exchange public and private messages, and execute channel management operations with operator privileges[cite: 1].
+The server allows clients to connect via TCP/IP, authenticate with a password, register a nickname/username, join channels, exchange public and private messages, and execute channel management operations with operator privileges.
 
 ---
 
