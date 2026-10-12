@@ -96,7 +96,9 @@ JOIN #<channel>
   * `!time`: Fetch and displays the current server time.
   * `!joke`: Tells a standard joke.
   * `!secret_joke`: Tells you a classic Moroccan joke in Darija.
-  * `!link`: Sends a link to a very important Oxford study"  
+  * `!link`: Sends a link to a very important Oxford study (a Rickroll).
+  * `!who`/ `ẁho`: Triggers binary encrypted responses.
+  * `!help`: Displays the list of all available commands.
   
 ---
 
