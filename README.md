@@ -1,6 +1,6 @@
 *This project has been created as part of the 42 curriculum by achoukri, delhajou, rben-ais.*
 
-# ft_irc
+# FT_IRC
 
 ## Description
 This project is an Internet Relay Chat (IRC) server written in C++98. The goal of the project is to implement a functional, non-blocking IRC server capable of handling multiple client connections simultaneously using a single `poll()` (or equivalent) multiplexing loop without hanging or forking. 
@@ -71,7 +71,7 @@ JOIN #<channel>
 * `i`: Set/remove Invite-only channel
 
 
-* `t`: Set/remove Topic restrictions for operators
+* `t`: Set/remove Topic restrictions for channel members 
 
 
 * `k`: Set/remove Channel key (password)
