@@ -82,6 +82,22 @@ JOIN #<channel>
 
 * `l`: Set/remove User limit to channel
 
+##Bonus Features
+
+* **Custom IRC Bot(`ìrcbot`)**: An automated client script that connects to the server, authenticates, and automatically joins the `#general`channel o interact with users. It supports dynamic routing , meaning it will reply directly in the channel if asked publicly, or via Direct Messages if messaged privately.
+  **How to Run the Bot**:
+  Ensure your server is running first, the execute the bot in a separate terminal window:
+  ```Bash
+  ./ircserv_bonus <port> <password>
+  ```
+
+  **Available Bot Commands:***
+  * `!ping`: The bot replies with a ¨Pong!¨ to confirm it is alive and listening.
+  * `!time`: Fetch and displays the current server time.
+  * `!joke`: Tells a standard joke.
+  * `!secret_joke`: Tells you a classic Moroccan joke in Darija.
+  * `!link`: Sends a link to a very important Oxford study"  
+  
 ---
 
 ## Resources
